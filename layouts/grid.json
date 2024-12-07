@@ -1,0 +1,50 @@
+{
+    "layout": {
+        "columns": ["1fr", "1fr", "1fr"],
+        "rows": ["1fr", "1fr", "1fr"]
+    },
+    "screens": [
+        {
+            "id": "top-left",
+            "content": "content/page1.html",
+            "gridArea": "1 / 1 / 2 / 2",
+            "zIndex": 1
+        },
+        {
+            "id": "top-center",
+            "content": "content/page2.html",
+            "gridArea": "1 / 2 / 2 / 3",
+            "zIndex": 1
+        },
+        {
+            "id": "top-right",
+            "content": "content/page3.html",
+            "gridArea": "1 / 3 / 2 / 4",
+            "zIndex": 1
+        },
+        {
+            "id": "center",
+            "content": "content/page1.html",
+            "gridArea": "2 / 1 / 3 / 4",
+            "zIndex": 1
+        },
+        {
+            "id": "bottom-left",
+            "content": "content/page2.html",
+            "gridArea": "3 / 1 / 4 / 2",
+            "zIndex": 1
+        },
+        {
+            "id": "bottom-center",
+            "content": "content/page3.html",
+            "gridArea": "3 / 2 / 4 / 3",
+            "zIndex": 1
+        },
+        {
+            "id": "bottom-right",
+            "content": "content/page1.html",
+            "gridArea": "3 / 3 / 4 / 4",
+            "zIndex": 1
+        }
+    ]
+}

@@ -1,0 +1,26 @@
+{
+    "layout": {
+        "columns": ["2fr", "1fr"],
+        "rows": ["2fr", "1fr"]
+    },
+    "screens": [
+        {
+            "id": "main",
+            "content": "content/page1.html",
+            "gridArea": "1 / 1 / 2 / 2",
+            "zIndex": 1
+        },
+        {
+            "id": "right-sidebar",
+            "content": "content/page2.html",
+            "gridArea": "1 / 2 / 3 / 3",
+            "zIndex": 1
+        },
+        {
+            "id": "bottom",
+            "content": "content/page3.html",
+            "gridArea": "2 / 1 / 3 / 2",
+            "zIndex": 1
+        }
+    ]
+}

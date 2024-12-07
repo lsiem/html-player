@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HTML Player</title>
+    <style>
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+        #container {
+            width: 100%;
+            height: 100%;
+            display: grid;
+            position: relative;
+        }
+        .screen {
+            border: 1px solid #ccc;
+            overflow: hidden;
+            position: relative;
+        }
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="layout-selector">
+        <select id="layout-select" style="position: fixed; top: 10px; left: 10px; z-index: 1000;">
+            <option value="config.json">Default Layout</option>
+            <option value="layouts/pip-layout.json">Picture-in-Picture</option>
+            <option value="layouts/video-wall.json">Video Wall</option>
+            <option value="layouts/dashboard.json">Dashboard</option>
+            <option value="layouts/presentation.json">Presentation</option>
+            <option value="layouts/grid.json">Grid</option>
+        </select>
+    </div>
+    <div id="container"></div>
+    <script src="player.js" type="module"></script>
+    <script>
+        document.getElementById('layout-select').addEventListener('change', function(e) {
+            window.htmlPlayer.loadConfig(e.target.value);
+        });
+    </script>
+</body>
+</html>
