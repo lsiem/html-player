@@ -1,0 +1,25 @@
+{
+    "layout": {
+        "columns": ["100vw", "100vw"],
+        "rows": ["100vh"]
+    },
+    "screens": [
+        {
+            "id": "left-monitor",
+            "content": "content/page1.html",
+            "gridArea": "1 / 1 / 2 / 2",
+            "zIndex": 1
+        },
+        {
+            "id": "right-monitor",
+            "content": "content/page2.html",
+            "gridArea": "1 / 2 / 2 / 3",
+            "zIndex": 1
+        }
+    ],
+    "settings": {
+        "spanMonitors": true,
+        "totalWidth": "200vw",
+        "totalHeight": "100vh"
+    }
+}

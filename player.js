@@ -9,20 +9,65 @@ class HTMLPlayer {
     }
 
     async initializeMonitors() {
-        if (!window.screen?.getScreenDetails) {
-            console.warn('Multi-monitor API not supported');
-            this.monitors = [window.screen];
-            return;
-        }
-
         try {
-            const screenDetails = await window.screen.getScreenDetails();
-            this.monitors = screenDetails.screens;
-            console.log(`Detected ${this.monitors.length} monitors`);
+            // Try to get monitors using the Window Segments API (for Windows)
+            if ('windowSegments' in window) {
+                const segments = window.windowSegments;
+                this.monitors = segments;
+                console.log(`Detected ${segments.length} window segments`);
+            } 
+            // Fallback to screen enumeration
+            else {
+                this.monitors = await this.getConnectedDisplays();
+                console.log(`Detected ${this.monitors.length} monitors`);
+            }
         } catch (error) {
-            console.error('Error getting screen details:', error);
-            this.monitors = [window.screen];
+            console.error('Error detecting monitors:', error);
+            this.monitors = [{ 
+                left: 0, 
+                top: 0, 
+                width: window.screen.width, 
+                height: window.screen.height 
+            }];
         }
+    }
+
+    async getConnectedDisplays() {
+        return new Promise((resolve) => {
+            if (window.screen?.isExtended) {
+                // Windows multi-monitor detection
+                const displays = [];
+                const primaryDisplay = {
+                    left: window.screen.availLeft,
+                    top: window.screen.availTop,
+                    width: window.screen.availWidth,
+                    height: window.screen.availHeight,
+                    isPrimary: true
+                };
+                displays.push(primaryDisplay);
+
+                // Check for additional displays using screen properties
+                if (window.screen.isExtended) {
+                    // Add secondary display (assuming it's to the right of primary)
+                    displays.push({
+                        left: primaryDisplay.left + primaryDisplay.width,
+                        top: 0,
+                        width: window.screen.width - primaryDisplay.width,
+                        height: window.screen.height,
+                        isPrimary: false
+                    });
+                }
+                resolve(displays);
+            } else {
+                resolve([{
+                    left: 0,
+                    top: 0,
+                    width: window.screen.width,
+                    height: window.screen.height,
+                    isPrimary: true
+                }]);
+            }
+        });
     }
 
     async loadConfig(configPath) {
@@ -39,9 +84,19 @@ class HTMLPlayer {
         if (!this.config) return;
 
         // Apply layout configuration
-        const { layout, screens } = this.config;
+        const { layout, screens, settings } = this.config;
         this.container.style.gridTemplateColumns = layout.columns.join(' ');
         this.container.style.gridTemplateRows = layout.rows.join(' ');
+
+        // Handle multi-monitor spanning
+        if (settings?.spanMonitors) {
+            this.container.style.width = settings.totalWidth || '200vw';
+            this.container.style.height = settings.totalHeight || '100vh';
+            this.container.style.overflow = 'hidden';
+        } else {
+            this.container.style.width = '100%';
+            this.container.style.height = '100%';
+        }
 
         // Clear existing screens
         this.container.innerHTML = '';
@@ -88,11 +143,27 @@ class HTMLPlayer {
                 await document.exitFullscreen();
             }
 
-            const options = {
-                screen: this.monitors[this.currentMonitor]
-            };
+            const monitor = this.monitors[this.currentMonitor];
+            
+            // Position the window on the correct monitor before going fullscreen
+            if (window.moveTo) {
+                window.moveTo(monitor.left, monitor.top);
+            }
 
-            await this.container.requestFullscreen(options);
+            // Set initial window size to match monitor
+            if (window.resizeTo) {
+                window.resizeTo(monitor.width, monitor.height);
+            }
+
+            // Apply monitor-specific styles
+            this.container.style.position = 'fixed';
+            this.container.style.left = '0';
+            this.container.style.top = '0';
+            this.container.style.width = '100%';
+            this.container.style.height = '100%';
+
+            // Enter fullscreen
+            await this.container.requestFullscreen();
             console.log(`Entered fullscreen on monitor ${this.currentMonitor}`);
         } catch (error) {
             console.error('Error entering fullscreen:', error);
