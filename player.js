@@ -3,6 +3,26 @@ class HTMLPlayer {
         this.container = document.getElementById('container');
         this.screens = new Map();
         this.config = null;
+        this.monitors = [];
+        this.currentMonitor = 0;
+        this.initializeMonitors();
+    }
+
+    async initializeMonitors() {
+        if (!window.screen?.getScreenDetails) {
+            console.warn('Multi-monitor API not supported');
+            this.monitors = [window.screen];
+            return;
+        }
+
+        try {
+            const screenDetails = await window.screen.getScreenDetails();
+            this.monitors = screenDetails.screens;
+            console.log(`Detected ${this.monitors.length} monitors`);
+        } catch (error) {
+            console.error('Error getting screen details:', error);
+            this.monitors = [window.screen];
+        }
     }
 
     async loadConfig(configPath) {
@@ -56,6 +76,46 @@ class HTMLPlayer {
             const iframe = screen.querySelector('iframe');
             iframe.src = newContent;
         }
+    }
+
+    async enterFullscreen(monitorIndex = null) {
+        if (monitorIndex !== null && monitorIndex >= 0 && monitorIndex < this.monitors.length) {
+            this.currentMonitor = monitorIndex;
+        }
+
+        try {
+            if (document.fullscreenElement) {
+                await document.exitFullscreen();
+            }
+
+            const options = {
+                screen: this.monitors[this.currentMonitor]
+            };
+
+            await this.container.requestFullscreen(options);
+            console.log(`Entered fullscreen on monitor ${this.currentMonitor}`);
+        } catch (error) {
+            console.error('Error entering fullscreen:', error);
+        }
+    }
+
+    exitFullscreen() {
+        if (document.fullscreenElement) {
+            document.exitFullscreen();
+        }
+    }
+
+    setMonitor(index) {
+        if (index >= 0 && index < this.monitors.length) {
+            this.currentMonitor = index;
+            console.log(`Selected monitor ${index}`);
+            return true;
+        }
+        return false;
+    }
+
+    getMonitorCount() {
+        return this.monitors.length;
     }
 }
 

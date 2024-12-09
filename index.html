@@ -31,8 +31,8 @@
     </style>
 </head>
 <body>
-    <div id="layout-selector">
-        <select id="layout-select" style="position: fixed; top: 10px; left: 10px; z-index: 1000;">
+    <div id="controls" style="position: fixed; top: 10px; left: 10px; z-index: 1000; display: flex; gap: 10px;">
+        <select id="layout-select">
             <option value="config.json">Default Layout</option>
             <option value="layouts/pip-layout.json">Picture-in-Picture</option>
             <option value="layouts/video-wall.json">Video Wall</option>
@@ -40,12 +40,57 @@
             <option value="layouts/presentation.json">Presentation</option>
             <option value="layouts/grid.json">Grid</option>
         </select>
+        <select id="monitor-select">
+            <option value="0">Monitor 1</option>
+        </select>
+        <button id="fullscreen-btn">Enter Fullscreen</button>
+        <button id="exit-fullscreen-btn">Exit Fullscreen</button>
     </div>
     <div id="container"></div>
     <script src="player.js" type="module"></script>
     <script>
-        document.getElementById('layout-select').addEventListener('change', function(e) {
-            window.htmlPlayer.loadConfig(e.target.value);
+        // Wait for the player to initialize
+        window.addEventListener('load', async () => {
+            const player = window.htmlPlayer;
+            await new Promise(resolve => setTimeout(resolve, 1000)); // Wait for monitor detection
+
+            // Update monitor select options
+            const monitorSelect = document.getElementById('monitor-select');
+            monitorSelect.innerHTML = ''; // Clear default option
+            for (let i = 0; i < player.getMonitorCount(); i++) {
+                const option = document.createElement('option');
+                option.value = i;
+                option.textContent = `Monitor ${i + 1}`;
+                monitorSelect.appendChild(option);
+            }
+
+            // Layout selection
+            document.getElementById('layout-select').addEventListener('change', function(e) {
+                player.loadConfig(e.target.value);
+            });
+
+            // Monitor selection
+            monitorSelect.addEventListener('change', function(e) {
+                player.setMonitor(parseInt(e.target.value));
+            });
+
+            // Fullscreen controls
+            document.getElementById('fullscreen-btn').addEventListener('click', function() {
+                player.enterFullscreen();
+            });
+
+            document.getElementById('exit-fullscreen-btn').addEventListener('click', function() {
+                player.exitFullscreen();
+            });
+
+            // Keyboard shortcuts
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'f' || e.key === 'F') {
+                    player.enterFullscreen();
+                } else if (e.key === 'Escape') {
+                    player.exitFullscreen();
+                }
+            });
         });
     </script>
 </body>
